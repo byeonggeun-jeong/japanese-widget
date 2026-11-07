@@ -1,0 +1,16 @@
+{
+  "name": "kana-widget",
+  "version": "1.0.0",
+  "private": true,
+  "description": "바탕화면용 히라가나/가타가나 위젯",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test",
+    "pack": "electron-packager . JapaneseWidget --platform=win32 --arch=x64 --out=dist --overwrite --asar --ignore=\"\\.test\\.js$\" --ignore=\"\\.lnk$\" --ignore=\"^/README\\.md$\""
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^45.2.3"
+  }
+}

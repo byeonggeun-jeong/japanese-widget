@@ -1,0 +1,86 @@
+:root,
+:root[data-theme="dark"] {
+  --bg: #1e1f24;
+  --fg: #f2f2f4;
+  --muted: #8b8d98;
+  --line: #34363e;
+  --accent: #ff7a8a;
+  --ok: #4fd08a;
+  --ng: #ff6b6b;
+}
+:root[data-theme="light"] {
+  --bg: #fbfaf7;
+  --fg: #1f2026;
+  --muted: #8a8b93;
+  --line: #e2e0da;
+  --accent: #d6455a;
+  --ok: #1f9d5c;
+  --ng: #d93a3a;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: transparent; overflow: hidden; user-select: none; }
+body { font-family: "Yu Gothic UI", "Meiryo", "Malgun Gothic", sans-serif; color: var(--fg); }
+
+.panel {
+  height: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.drag { height: 14px; flex: none; -webkit-app-region: drag; position: relative; }
+.drag::after {
+  content: ""; position: absolute; left: 50%; top: 5px; width: 32px; height: 4px;
+  margin-left: -16px; border-radius: 2px; background: var(--line); opacity: 0; transition: opacity .15s;
+}
+.panel:hover .drag::after { opacity: 1; }
+main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* 순환 학습 · 플래시카드 */
+.card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px 16px; }
+.char { font-size: 96px; line-height: 1.1; font-weight: 500; }
+.char.small { font-size: 72px; }
+.answer { height: 28px; margin-top: 4px; font-size: 20px; color: var(--accent); letter-spacing: .04em; }
+.flash { cursor: pointer; }
+.flash .answer.hidden { visibility: hidden; }
+.hint { font-size: 11px; color: var(--muted); height: 14px; }
+
+.typebox {
+  margin-top: 8px; width: 140px; height: 36px; border-radius: 8px;
+  border: 1.5px solid var(--line); outline: none;
+  background: transparent; color: var(--fg); font: inherit;
+  text-align: center; font-size: 18px; letter-spacing: .06em;
+}
+.typebox:focus { border-color: var(--accent); }
+.typebox::placeholder { font-size: 12px; color: var(--muted); letter-spacing: 0; }
+.typebox.ok { border-color: var(--ok); color: var(--ok); }
+.typebox.ng { border-color: var(--ng); animation: shake .3s; }
+@keyframes shake {
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
+.tries { margin-top: 8px; display: flex; gap: 6px; }
+.tries span { width: 6px; height: 6px; border-radius: 50%; background: var(--line); }
+.tries span.used { background: var(--ng); }
+
+.empty { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.6; padding: 16px; word-break: keep-all; }
+
+/* 전체 표 */
+.tabs { display: flex; gap: 4px; padding: 0 14px 10px; }
+.tabs button {
+  font: inherit; font-size: 12px; padding: 4px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+}
+.tabs button.on { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.grid { flex: 1; display: grid; gap: 4px; padding: 0 14px 14px; align-content: start; }
+.cell {
+  height: 40px; border-radius: 6px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; line-height: 1.1;
+}
+.cell.filled { background: color-mix(in srgb, var(--line) 45%, transparent); }
+.cell b { font-size: 19px; font-weight: 500; }
+.cell small { font-size: 10px; color: var(--muted); }
