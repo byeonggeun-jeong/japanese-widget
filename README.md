@@ -27,6 +27,8 @@ Windows 바탕화면에 띄워두고 히라가나·가타가나를 익히는 위
 - 순서
 - 투명도
 - 테마
+- 글꼴: 고딕체 / 교과서체 (손글씨 획 모양, 쓰기 연습용)
+- 배경 이미지: 내 PC의 PNG·JPG를 학습·카드 모드 배경으로 사용하고, 글자가 잘 보이도록 가림막 진하기를 조절합니다. 이미지는 내 PC에만 저장됩니다
 - Windows 시작 시 자동 실행
 
 **창 이동**: 위젯 위쪽 가장자리를 끌어서 옮깁니다. 위치와 설정은 다음 실행 때도 그대로 유지됩니다.
@@ -41,3 +43,7 @@ npm start       # 소스에서 실행
 npm test        # 가나 데이터·정답 판정 테스트
 npm run pack    # dist/에 exe 빌드
 ```
+
+## 글꼴 라이선스
+
+교과서체는 [Klee One](https://github.com/fontworks-fonts/Klee)(Fontworks)에서 가나·영문만 추려 사용합니다. 라이선스는 SIL Open Font License 1.1이며 전문은 [fonts/OFL.txt](fonts/OFL.txt)에 있습니다.

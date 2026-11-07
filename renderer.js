@@ -161,10 +161,25 @@ function render() {
 }
 
 // ---------- 설정 반영 ----------
+const panel = document.querySelector('.panel');
+
+async function applyImage(changed) {
+  if (changed) {
+    const url = s.image ? await window.widget.getImage() : null;
+    panel.style.setProperty('--image', url ? `url("${url}")` : 'none');
+  }
+  // 표 모드는 칸이 촘촘해 가독성을 위해 이미지를 쓰지 않는다
+  panel.classList.toggle('with-image', !!s.image && s.mode !== 'table');
+}
+
 function apply(next) {
   const prev = s;
   s = next;
-  document.documentElement.dataset.theme = s.theme;
+  const root = document.documentElement.dataset;
+  root.theme = s.theme;
+  root.font = s.font;
+  root.veil = s.veil;
+  applyImage(!prev || prev.image !== s.image);
   // 투명도·테마만 바뀌었으면 풀던 문제를 유지한다
   const key = (x) => JSON.stringify([x.mode, x.script, x.order, x.groups]);
   if (!prev || key(prev) !== key(s)) {

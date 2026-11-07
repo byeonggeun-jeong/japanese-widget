@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, screen, dialog, nativeImage } = require('electron');
 const fs = require('fs');
 const path = require('path');
 
@@ -15,6 +15,9 @@ const DEFAULTS = {
   order: 'random', // random | sequential
   opacity: 1,
   theme: 'dark', // dark | light
+  font: 'gothic', // gothic | textbook
+  image: null, // userData 안의 배경 이미지 파일 이름
+  veil: 'medium', // light | medium | strong (이미지 위 가림막 진하기)
   x: undefined,
   y: undefined,
 };
@@ -46,6 +49,40 @@ function update(patch) {
   if (modeChanged) win.setBounds({ ...win.getBounds(), ...SIZES[settings.mode] });
   win.setOpacity(settings.opacity);
   win.webContents.send('settings', settings);
+}
+
+const MAX_IMAGE_SIDE = 1200; // 위젯이 작아서 이보다 크면 화질 차이 없이 메모리만 씀
+
+function removeImageFile() {
+  if (settings.image) fs.rmSync(path.join(app.getPath('userData'), settings.image), { force: true });
+}
+
+async function chooseImage() {
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    title: '배경 이미지 선택',
+    filters: [{ name: '이미지', extensions: ['png', 'jpg', 'jpeg'] }],
+    properties: ['openFile'],
+  });
+  if (canceled) return;
+  let img = nativeImage.createFromPath(filePaths[0]);
+  if (img.isEmpty()) {
+    dialog.showMessageBox(win, { type: 'error', message: '이미지를 열 수 없습니다.', detail: 'PNG 또는 JPG 파일을 선택하세요.' });
+    return;
+  }
+  const { width, height } = img.getSize();
+  if (Math.max(width, height) > MAX_IMAGE_SIDE) {
+    img = width >= height ? img.resize({ width: MAX_IMAGE_SIDE, quality: 'best' }) : img.resize({ height: MAX_IMAGE_SIDE, quality: 'best' });
+  }
+  removeImageFile();
+  const name = `background-${Date.now()}.png`;
+  fs.writeFileSync(path.join(app.getPath('userData'), name), img.toPNG());
+  update({ image: name });
+}
+
+function readImage() {
+  if (!settings.image) return null;
+  const img = nativeImage.createFromPath(path.join(app.getPath('userData'), settings.image));
+  return img.isEmpty() ? null : img.toDataURL();
 }
 
 // 저장된 위치가 현재 연결된 모니터 밖이면(모니터 분리 등) 기본 위치 사용
@@ -81,6 +118,16 @@ function buildMenu() {
     { label: '순서', submenu: [radio('랜덤', 'order', 'random'), radio('순서대로', 'order', 'sequential')] },
     { label: '투명도', submenu: [1, 0.9, 0.8, 0.7, 0.5].map((v) => radio(`${v * 100}%`, 'opacity', v)) },
     { label: '테마', submenu: [radio('다크', 'theme', 'dark'), radio('라이트', 'theme', 'light')] },
+    { label: '글꼴', submenu: [radio('고딕체', 'font', 'gothic'), radio('교과서체', 'font', 'textbook')] },
+    { label: '배경 이미지', submenu: [
+      { label: '이미지 선택…', click: chooseImage },
+      { label: '이미지 제거', enabled: !!settings.image, click: () => { removeImageFile(); update({ image: null }); } },
+      { type: 'separator' },
+      { label: '가림막 진하기', enabled: false },
+      radio('연하게', 'veil', 'light'),
+      radio('보통', 'veil', 'medium'),
+      radio('진하게', 'veil', 'strong'),
+    ] },
     { type: 'separator' },
     {
       label: 'Windows 시작 시 자동 실행', type: 'checkbox',
@@ -127,6 +174,7 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     settings = loadSettings();
     ipcMain.handle('get-settings', () => settings);
+    ipcMain.handle('get-image', readImage);
     ipcMain.on('show-menu', () => buildMenu().popup({ window: win }));
     createWindow();
   });

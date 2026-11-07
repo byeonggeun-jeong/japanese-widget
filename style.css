@@ -18,9 +18,17 @@
   --ng: #d93a3a;
 }
 
+/* 교과서체: Klee One(OFL)에서 가나·영문만 추린 파일. 한글은 아래 대체 글꼴로 표시 */
+@font-face {
+  font-family: "Klee One Kana";
+  src: url("fonts/KleeOne-Kana.woff2") format("woff2");
+}
+
 * { box-sizing: border-box; margin: 0; }
 html, body { height: 100%; background: transparent; overflow: hidden; user-select: none; }
 body { font-family: "Yu Gothic UI", "Meiryo", "Malgun Gothic", sans-serif; color: var(--fg); }
+:root[data-font="textbook"] body { font-family: "Klee One Kana", "Yu Gothic UI", "Malgun Gothic", sans-serif; }
+:root[data-font="textbook"] .char { font-weight: 400; }
 
 .panel {
   height: 100%;
@@ -31,6 +39,16 @@ body { font-family: "Yu Gothic UI", "Meiryo", "Malgun Gothic", sans-serif; color
   flex-direction: column;
   overflow: hidden;
 }
+/* 배경 이미지 + 글자가 잘 보이도록 테마 배경색 가림막을 위에 덮는다 */
+.panel.with-image {
+  background:
+    linear-gradient(color-mix(in srgb, var(--bg) var(--veil), transparent), color-mix(in srgb, var(--bg) var(--veil), transparent)),
+    var(--image) center / cover no-repeat,
+    var(--bg);
+}
+:root[data-veil="light"] { --veil: 40%; }
+:root[data-veil="medium"] { --veil: 62%; }
+:root[data-veil="strong"] { --veil: 80%; }
 .drag { height: 14px; flex: none; -webkit-app-region: drag; position: relative; }
 .drag::after {
   content: ""; position: absolute; left: 50%; top: 5px; width: 32px; height: 4px;
@@ -55,6 +73,7 @@ main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   text-align: center; font-size: 18px; letter-spacing: .06em;
 }
 .typebox:focus { border-color: var(--accent); }
+.with-image .typebox { background: color-mix(in srgb, var(--bg) 70%, transparent); }
 .typebox::placeholder { font-size: 12px; color: var(--muted); letter-spacing: 0; }
 .typebox.ok { border-color: var(--ok); color: var(--ok); }
 .typebox.ng { border-color: var(--ng); animation: shake .3s; }
