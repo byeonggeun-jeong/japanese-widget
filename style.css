@@ -26,8 +26,8 @@
 
 * { box-sizing: border-box; margin: 0; }
 html, body { height: 100%; background: transparent; overflow: hidden; user-select: none; }
-body { font-family: "Yu Gothic UI", "Meiryo", "Malgun Gothic", sans-serif; color: var(--fg); }
-:root[data-font="textbook"] body { font-family: "Klee One Kana", "Yu Gothic UI", "Malgun Gothic", sans-serif; }
+body { font-family: "Yu Gothic UI", "Meiryo", "Hiragino Sans", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; color: var(--fg); }
+:root[data-font="textbook"] body { font-family: "Klee One Kana", "Yu Gothic UI", "Hiragino Sans", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
 :root[data-font="textbook"] .char { font-weight: 400; }
 
 .panel {

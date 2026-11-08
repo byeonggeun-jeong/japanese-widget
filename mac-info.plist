@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!-- Dock·앱 전환기(⌘Tab)에 표시하지 않는 위젯 앱 -->
+  <key>LSUIElement</key>
+  <true/>
+</dict>
+</plist>

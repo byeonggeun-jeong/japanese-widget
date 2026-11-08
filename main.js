@@ -22,6 +22,7 @@ const DEFAULTS = {
   y: undefined,
 };
 
+const isMac = process.platform === 'darwin';
 const settingsFile = path.join(app.getPath('userData'), 'settings.json');
 let settings;
 let win;
@@ -40,7 +41,9 @@ function saveSettings() {
 }
 
 // 자동 실행: exe 버전은 exe만, 소스 실행은 electron.exe + 앱 폴더 경로로 등록한다
+// macOS는 path/args를 무시하고 실행 중인 .app 자체를 등록하므로, 소스 실행(Electron.app)에서는 쓸 수 없다
 const loginItem = { path: process.execPath, args: app.isPackaged ? [] : [path.resolve(__dirname)] };
+const canAutoStart = !isMac || app.isPackaged;
 
 function update(patch) {
   const modeChanged = patch.mode && patch.mode !== settings.mode;
@@ -130,8 +133,9 @@ function buildMenu() {
     ] },
     { type: 'separator' },
     {
-      label: 'Windows 시작 시 자동 실행', type: 'checkbox',
-      checked: app.getLoginItemSettings(loginItem).openAtLogin,
+      label: isMac ? '로그인 시 자동 실행' : 'Windows 시작 시 자동 실행', type: 'checkbox',
+      enabled: canAutoStart,
+      checked: canAutoStart && app.getLoginItemSettings(loginItem).openAtLogin,
       click: (item) => app.setLoginItemSettings({ ...loginItem, openAtLogin: item.checked }),
     },
     { type: 'separator' },
@@ -150,10 +154,13 @@ function createWindow() {
     maximizable: false,
     skipTaskbar: true,
     alwaysOnTop: false,
+    hasShadow: false, // macOS: 투명 창 그림자가 둥근 모서리 밖으로 비치는 것 방지
     show: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   win.setOpacity(settings.opacity);
+  // macOS: 데스크톱(Space)을 바꿔도 위젯이 따라오도록
+  if (isMac) win.setVisibleOnAllWorkspaces(true, { skipTransformProcessType: true }); // 옵션 없으면 Dock 아이콘이 다시 생김
   win.loadFile(path.join(__dirname, 'index.html'));
   win.once('ready-to-show', () => win.showInactive());
 
@@ -172,6 +179,8 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
   app.whenReady().then(() => {
+    // macOS: skipTaskbar는 Windows 전용이라 Dock 아이콘·메뉴바를 따로 숨긴다
+    if (isMac) app.setActivationPolicy('accessory');
     settings = loadSettings();
     ipcMain.handle('get-settings', () => settings);
     ipcMain.handle('get-image', readImage);
